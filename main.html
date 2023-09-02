@@ -27,17 +27,58 @@
       <button id="speak">Speak</button>
 
     </div>
-
 <script>
   const msg = new SpeechSynthesisUtterance();
   let voices = [];
   const voicesDropdown = document.querySelector('[name="voice"]');
-  const options = document.querySelectorAll('[type="range"], [name="text"]');
+  const rateInput = document.querySelector('[name="rate"]');
+  const pitchInput = document.querySelector('[name="pitch"]');
+  const textInput = document.querySelector('[name="text"]');
   const speakButton = document.querySelector('#speak');
   const stopButton = document.querySelector('#stop');
 
-  //Your code goes here
+  // Function to populate voices in dropdown
+  function populateVoices() {
+    voices = this.getVoices();
+    voicesDropdown.innerHTML = voices
+      .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
+      .join('');
+  }
+
+  // Function to handle voice change
+  function setVoice() {
+    msg.voice = voices.find(voice => voice.name === this.value);
+    toggle();
+  }
+
+  // Function to restart the speech synthesis
+  function toggle(startOver = true) {
+    speechSynthesis.cancel();
+    if (startOver) {
+      speechSynthesis.speak(msg);
+    }
+  }
+
+  // Event Listeners
+  speechSynthesis.addEventListener('voiceschanged', populateVoices);
+  voicesDropdown.addEventListener('change', setVoice);
+  rateInput.addEventListener('change', e => msg.rate = e.target.value);
+  pitchInput.addEventListener('change', e => msg.pitch = e.target.value);
+  textInput.addEventListener('change', e => msg.text = e.target.value);
+
+  speakButton.addEventListener('click', () => {
+    msg.text = textInput.value;
+    toggle();
+  });
+
+  stopButton.addEventListener('click', () => toggle(false));
+
+  // Initialize default message properties
+  msg.text = textInput.value;
+  msg.rate = rateInput.value;
+  msg.pitch = pitchInput.value;
 </script>
+
 
 </body>
 </html>
